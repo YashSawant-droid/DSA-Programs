@@ -192,11 +192,13 @@ string infixToPrefix(string infix)
     return prefix;                         // Return the prefix expression
 }
 
-int main()
+int main()Assignment_4.cpp
 {
     string infix_expr;
     cout << "Enter an infix expression: ";
     cin >> infix_expr;
-    
+    cout << endl << infixToPrefix(infix_expr);
+    cout << endl << infixToPostfix(infix_expr);
+
     return 0;
 }
