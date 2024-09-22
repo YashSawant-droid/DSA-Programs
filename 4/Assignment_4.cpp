@@ -1,204 +1,181 @@
-#include <iostream> // Include the standard input-output library
-#include <string>   // Include the string library for handling string operations
-#include <stack>
-#include <cctype>    // Include the cctype library for character classification functions
-#include <cmath>     // Include the cmath library for mathematical functions like pow()
-#include <algorithm> // Include the algorithm library for functions like reverse
+#include <iostream>
+#include <string>
+
 using namespace std;
 
-// Node structure for linked list implementation of stack
-struct Node
-{
-    char data;  // Data stored in the node (a character)
-    Node *next; // Pointer to the next node in the linked list
+// Forward declaration of BNode
+struct BNode;
+
+// Node structure for the stack
+struct StackNode {
+    BNode* data;
+    StackNode* next;
 };
 
-// Stack class using linked list
-class Stack
-{
+// Stack class using singly linked list
+class Stack {
 private:
-    Node *top; // Pointer to the top element of the stack
+    StackNode* top;
 
 public:
-    Stack() : top(nullptr) {} // Constructor to initialize the stack with top set to nullptr
+    Stack() : top(nullptr) {}
 
     // Push an element onto the stack
-    void push(char x)
-    {
-        Node *temp = new Node(); // Allocate memory for a new node
-        if (!temp)
-        { // Check if memory allocation failed
-            cout << "Memory not available\n";
-            return;
-        }
-        temp->data = x;   // Set the data of the new node to x
-        temp->next = top; // Link the new node to the current top
-        top = temp;       // Update the top to point to the new node
+    void push(BNode* node) {
+        StackNode* newNode = new StackNode{node, top};
+        top = newNode;
     }
 
     // Pop an element from the stack
-    char pop()
-    {
-        if (isEmpty())
-        { // Check if the stack is empty
-            cout << "Stack Empty\n";
-            return '\0'; // Return null character if the stack is empty
-        }
-        char x = top->data; // Store the data from the top node
-        Node *temp = top;   // Store the current top node in a temporary pointer
-        top = top->next;    // Move the top pointer to the next node
-        delete temp;        // Delete the old top node
-        return x;           // Return the popped data
-    }
-
-    // Return the top element of the stack
-    char peek()
-    {
-        if (!isEmpty())       // Check if the stack is not empty
-            return top->data; // Return the data from the top node
-        else
-            return '\0'; // Return null character if the stack is empty
+    BNode* pop() {
+        if (isEmpty()) return nullptr;
+        BNode* node = top->data;
+        StackNode* temp = top;
+        top = top->next;
+        delete temp;
+        return node;
     }
 
     // Check if the stack is empty
-    bool isEmpty()
-    {
-        return top == nullptr; // Stack is empty if top is nullptr
+    bool isEmpty() {
+        return top == nullptr;
     }
 
-    // Function to check matching parentheses
-    bool isMatchingParenthesis(string expr)
-    {
-        for (char ch : expr)
-        { // Iterate through each character in the expression
-            if (ch == '(' || ch == '{' || ch == '[')
-            {
-                push(ch); // Push opening parentheses onto the stack
-            }
-            else if (ch == ')' || ch == '}' || ch == ']')
-            {
-                if (isEmpty())
-                { // Check if stack is empty when a closing parenthesis is found
-                    cout << "Close parenthesis missing\n";
-                    return false; // Return false if no matching opening parenthesis
-                }
-                char topChar = pop(); // Pop the top element from the stack
-                if ((ch == ')' && topChar != '(') ||
-                    (ch == '}' && topChar != '{') ||
-                    (ch == ']' && topChar != '['))
-                {
-                    cout << "Open parenthesis missing\n";
-                    return false; // Return false if parentheses do not match
-                }
-            }
+    // Destructor to clean up the stack
+    ~Stack() {
+        while (!isEmpty()) {
+            pop();
         }
-        if (!isEmpty())
-        { // Check if any unmatched opening parentheses remain
-            cout << "Open parenthesis missing\n";
-            return false; // Return false if unmatched parentheses exist
-        }
-        return true; // Return true if all parentheses match correctly
     }
 };
 
-// Function to return precedence of operators
-int precedence(char op)
-{
-    if (op == '+' || op == '-')
-        return 1; // Precedence 1 for '+' and '-'
-    if (op == '*' || op == '/')
-        return 2; // Precedence 2 for '*' and '/'
-    if (op == '$' || op == '^')
-        return 3; // Precedence 3 for '$' and '^'
-    return 0;     // Return 0 for any other character (usually parentheses)
+// Binary Tree Node structure
+struct BNode {
+    char data;
+    BNode *left, *right;
+
+    BNode(char val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+// Function to check if a character is an operand
+bool isOperand(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 }
 
-// Function to perform an operation and return output
-int applyOp(int a, int b, char op)
-{
-    switch (op)
-    {
-    case '+':
-        return a + b; // Perform addition
-    case '-':
-        return a - b; // Perform subtraction
-    case '*':
-        return a * b; // Perform multiplication
-    case '/':
-        return a / b; // Perform division
-    case '$':
-    case '^':
-        return pow(a, b); // Perform exponentiation
-    }
-    return 0; // Return 0 if an invalid operator is encountered
+// Function to check operator precedence
+int precedence(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    return 0;
 }
 
-// Function to convert infix to postfix
-string infixToPostfix(string infix)
-{
-    Stack stack;         // Create an instance of the Stack class
-    string postfix = ""; // Initialize an empty string for postfix
+// Convert infix to postfix
+string infixToPostfix(const string& infix) {
+    Stack stack;
+    string postfix;
 
-    for (char &ch : infix)
-    { // Iterate through each character in the infix expression
-        if (isalnum(ch))
-        {                  // If the character is an operand (alphabet or digit)
-            postfix += ch; // Append it to the postfix expression
-        }
-        else if (ch == '(')
-        {
-            stack.push(ch); // Push '(' onto the stack
-        }
-        else if (ch == ')')
-        {
-            while (!stack.isEmpty() && stack.peek() != '(')
-            {
-                postfix += stack.pop(); // Pop and add operators until '(' is found
+    for (char c : infix) {
+        if (isOperand(c)) {
+            postfix += c; // If the character is an operand
+        } else {
+            while (!stack.isEmpty() && precedence(stack.pop()->data) >= precedence(c)) {
+                postfix += stack.pop()->data; // Pop from stack if precedence is lower or equal
             }
-            stack.pop(); // Remove '(' from the stack
-        }
-        else
-        {
-            while (!stack.isEmpty() && precedence(ch) <= precedence(stack.peek()))
-            {
-                postfix += stack.pop(); // Pop and add operators with higher or equal precedence
-            }
-            stack.push(ch); // Push the current operator onto the stack
+            stack.push(new BNode(c)); // Push operator to stack
         }
     }
 
-    while (!stack.isEmpty())
-    {
-        postfix += stack.pop(); // Add any remaining operators to the postfix expression
+    while (!stack.isEmpty()) {
+        postfix += stack.pop()->data; // Pop all remaining operators
     }
 
-    return postfix; // Return the postfix expression
+    return postfix;
 }
 
-// Function to convert infix to prefix
-string infixToPrefix(string infix)
-{
-    reverse(infix.begin(), infix.end()); // Reverse the infix expression
-    for (char &ch : infix)
-    { // Iterate through the reversed expression
-        if (ch == '(')
-            ch = ')'; // Replace '(' with ')'
-        else if (ch == ')')
-            ch = '('; // Replace ')' with '('
+// Convert infix to prefix
+string infixToPrefix(const string& infix) {
+    string reversedInfix;
+    for (auto it = infix.rbegin(); it != infix.rend(); ++it) {
+        if (*it == '(') reversedInfix += ')';
+        else if (*it == ')') reversedInfix += '(';
+        else reversedInfix += *it;
     }
 
-    string prefix = infixToPostfix(infix); // Convert the modified infix to postfix
-    reverse(prefix.begin(), prefix.end()); // Reverse the postfix to get the prefix
-    return prefix;                         // Return the prefix expression
+    string postfix = infixToPostfix(reversedInfix);
+    return string(postfix.rbegin(), postfix.rend());
 }
 
-int main()Assignment_4.cpp
-{
-    string infix_expr;
+// Function to create an expression tree from postfix expression
+BNode* constructTreeFromPostfix(const string& postfix) {
+    Stack st;
+    for (char c : postfix) {
+        if (isOperand(c)) {
+            st.push(new BNode(c));
+        } else { // Operator
+            BNode* node = new BNode(c);
+            node->right = st.pop(); // Right child first
+            node->left = st.pop();  // Left child second
+            st.push(node);
+        }
+    }
+    return st.pop(); // The root of the tree
+}
+
+// Recursive In-order Traversal
+void inOrderRecursive(BNode* root) {
+    if (root) {
+        inOrderRecursive(root->left);
+        cout << root->data << " ";
+        inOrderRecursive(root->right);
+    }
+}
+
+// Recursive Pre-order Traversal
+void preOrderRecursive(BNode* root) {
+    if (root) {
+        cout << root->data << " ";
+        preOrderRecursive(root->left);
+        preOrderRecursive(root->right);
+    }
+}
+
+// Recursive Post-order Traversal
+void postOrderRecursive(BNode* root) {
+    if (root) {
+        postOrderRecursive(root->left);
+        postOrderRecursive(root->right);
+        cout << root->data << " ";
+    }
+}
+
+// Driver function
+int main() {
+    string infix;
+
     cout << "Enter an infix expression: ";
-    cin >> infix_expr;
-    cout << endl << infixToPrefix(infix_expr);
-    cout << endl << infixToPostfix(infix_expr);
+    cin >> infix;
+
+    string postfix = infixToPostfix(infix);
+    string prefix = infixToPrefix(infix);
+
+    cout << "\nPostfix: " << postfix << endl;
+    cout << "Prefix: " << prefix << endl;
+
+    BNode* rootPostfix = constructTreeFromPostfix(postfix);
+
+    cout << "\nConstructing tree from Postfix: " << postfix << endl;
+
+    cout << "Recursive In-order Traversal: ";
+    inOrderRecursive(rootPostfix);
+    cout << endl;
+
+    cout << "Recursive Pre-order Traversal: ";
+    preOrderRecursive(rootPostfix);
+    cout << endl;
+
+    cout << "Recursive Post-order Traversal: ";
+    postOrderRecursive(rootPostfix);
+    cout << endl;
 
     return 0;
 }
