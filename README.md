@@ -44,11 +44,11 @@ Welcome to the DSA Programs repository! This collection features several C++ pro
    -g++ program_name.cpp -o program_name
 4. Run the compiled program.
    -./program_name
-##Contributing
+## Contributing
 Contributions are welcome! If you have any improvements or additional programs to suggest, feel free to fork this repository and submit a pull request.
 
-##License
+## License
 This project is licensed under the MIT License. Feel free to use, modify, and distribute this code as per the license.
 
-###Happy coding!
+### Happy coding!
 
