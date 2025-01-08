@@ -39,3 +39,16 @@ Welcome to the DSA Programs repository! This collection features several C++ pro
 1. Clone this repository to your local machine.
    ```bash
    git clone https://github.com/your-username/dsa-programs.git
+2. Navigate to the directory of the program you want to run.
+3. Compile the C++ file using a C++ compiler.
+   -g++ program_name.cpp -o program_name
+4. Run the compiled program.
+   -./program_name
+##Contributing
+Contributions are welcome! If you have any improvements or additional programs to suggest, feel free to fork this repository and submit a pull request.
+
+##License
+This project is licensed under the MIT License. Feel free to use, modify, and distribute this code as per the license.
+
+###Happy coding!
+
